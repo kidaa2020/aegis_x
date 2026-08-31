@@ -1,0 +1,7 @@
+# requirements.txt
+colorama
+requests
+python-dotenv
+scapy
+flask
+pyyaml
