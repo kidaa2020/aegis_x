@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Reconocimiento y Auditoría - Aegis_X{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- ==================================================== -->
+    <!-- BARRA SUPERIOR: SELECTOR DE TARGET Y ACCIONES        -->
+    <!-- ==================================================== -->
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <!-- Selector de Objetivo -->
+            <div class="flex-1">
+                <label for="target-select" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+                    🎯 Seleccionar Objetivo Activo
+                </label>
+                <div class="relative">
+                    <select 
+                        id="target-select" 
+                        class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono text-sm cursor-pointer"
+                    >
+                        <option value="">-- Seleccione un objetivo para auditar --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Botones de Acción de Escaneo -->
+            <div class="flex flex-wrap items-center gap-2.5 pt-2 lg:pt-6">
+                <!-- 1. Subdominios -->
+                <button 
+                    id="btn-scan-subdomains" 
+                    disabled 
+                    class="action-scan-btn inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-700/80 hover:bg-emerald-600 disabled:opacity-50 disabled:hover:bg-gray-700/80 text-white text-xs font-medium rounded-lg transition duration-150 border border-gray-600 cursor-pointer disabled:cursor-not-allowed"
+                >
+                    <span class="spinner hidden">
+                        <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                    </span>
+                    <span class="icon">🌐</span>
+                    <span>Enumerar Subdominios</span>
+                </button>
+
+                <!-- 2. Puertos -->
+                <button 
+                    id="btn-scan-ports" 
+                    disabled 
+                    class="action-scan-btn inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-700/80 hover:bg-amber-600 disabled:opacity-50 disabled:hover:bg-gray-700/80 text-white text-xs font-medium rounded-lg transition duration-150 border border-gray-600 cursor-pointer disabled:cursor-not-allowed"
+                >
+                    <span class="spinner hidden">
+                        <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                    </span>
+                    <span class="icon">🔓</span>
+                    <span>Escanear Puertos</span>
+                </button>
+
+                <!-- 3. Tecnologías -->
+                <button 
+                    id="btn-scan-tech" 
+                    disabled 
+                    class="action-scan-btn inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-700/80 hover:bg-purple-600 disabled:opacity-50 disabled:hover:bg-gray-700/80 text-white text-xs font-medium rounded-lg transition duration-150 border border-gray-600 cursor-pointer disabled:cursor-not-allowed"
+                >
+                    <span class="spinner hidden">
+                        <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                    </span>
+                    <span class="icon">⚙️</span>
+                    <span>Detectar Tecnologías</span>
+                </button>
+
+                <!-- 4. Analizar JS -->
+                <button 
+                    id="btn-scan-js" 
+                    disabled 
+                    class="action-scan-btn inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-700/80 hover:bg-cyan-600 disabled:opacity-50 disabled:hover:bg-gray-700/80 text-white text-xs font-medium rounded-lg transition duration-150 border border-gray-600 cursor-pointer disabled:cursor-not-allowed"
+                >
+                    <span class="spinner hidden">
+                        <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                    </span>
+                    <span class="icon">📜</span>
+                    <span>Analizar JS</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Banner Informativo de Progreso de Tareas -->
+        <div id="recon-scan-status" class="hidden mt-4 p-3 bg-gray-900 border border-gray-700 rounded-lg text-xs font-mono flex items-center justify-between text-cyan-300">
+            <div class="flex items-center space-x-2">
+                <svg class="animate-spin h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span id="scan-status-message">Ejecutando tarea de escaneo en segundo plano...</span>
+            </div>
+            <span class="text-gray-400">Notificación automática vía WebSocket</span>
+        </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- PESTAÑAS DE NAVEGACIÓN DE RESULTADOS                 -->
+    <!-- ==================================================== -->
+    <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-xl">
+        <!-- Navegación de Pestañas -->
+        <div class="flex border-b border-gray-700 bg-gray-850 px-4 space-x-2 overflow-x-auto">
+            <button class="tab-button px-5 py-3.5 text-sm font-medium border-b-2 border-emerald-400 text-emerald-400 flex items-center space-x-2" data-tab="subdomains">
+                <span>🌐 Subdominios</span>
+                <span id="badge-subdomains-count" class="px-2 py-0.5 text-xs bg-gray-700 rounded-full font-mono">0</span>
+            </button>
+            <button class="tab-button px-5 py-3.5 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center space-x-2" data-tab="ports">
+                <span>🔓 Puertos Abiertos</span>
+                <span id="badge-ports-count" class="px-2 py-0.5 text-xs bg-gray-700 rounded-full font-mono">0</span>
+            </button>
+            <button class="tab-button px-5 py-3.5 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center space-x-2" data-tab="technologies">
+                <span>⚙️ Tecnologías</span>
+                <span id="badge-tech-count" class="px-2 py-0.5 text-xs bg-gray-700 rounded-full font-mono">0</span>
+            </button>
+            <button class="tab-button px-5 py-3.5 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center space-x-2" data-tab="jsfiles">
+                <span>📜 Archivos JS & Endpoints</span>
+                <span id="badge-js-count" class="px-2 py-0.5 text-xs bg-gray-700 rounded-full font-mono">0</span>
+            </button>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- CONTENIDO DE LAS PESTAÑAS                        -->
+        <!-- ================================================ -->
+        <div class="p-6">
+            <!-- 1. Pestaña Subdominios -->
+            <div id="tab-subdomains" class="tab-content block">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-300">
+                        <thead class="bg-gray-900/70 text-xs uppercase text-gray-400 font-mono tracking-wider border-b border-gray-700">
+                            <tr>
+                                <th class="px-6 py-3.5">Subdominio</th>
+                                <th class="px-6 py-3.5">Dirección IP</th>
+                                <th class="px-6 py-3.5">Fecha de Descubrimiento</th>
+                                <th class="px-6 py-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subdomains-table-body" class="divide-y divide-gray-700/60 font-mono text-xs">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    Seleccione un objetivo y ejecute "Enumerar Subdominios" para visualizar resultados.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. Pestaña Puertos -->
+            <div id="tab-ports" class="tab-content hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-300">
+                        <thead class="bg-gray-900/70 text-xs uppercase text-gray-400 font-mono tracking-wider border-b border-gray-700">
+                            <tr>
+                                <th class="px-6 py-3.5">Puerto</th>
+                                <th class="px-6 py-3.5">Protocolo</th>
+                                <th class="px-6 py-3.5">Servicio</th>
+                                <th class="px-6 py-3.5">Banner / Versión Detectada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ports-table-body" class="divide-y divide-gray-700/60 font-mono text-xs">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    Seleccione un objetivo y ejecute "Escanear Puertos" para visualizar servicios activos.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. Pestaña Tecnologías -->
+            <div id="tab-technologies" class="tab-content hidden">
+                <div id="technologies-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="col-span-full py-8 text-center text-gray-500 font-mono text-sm">
+                        Seleccione un objetivo y ejecute "Detectar Tecnologías" para inspeccionar la pila tecnológica.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Pestaña Archivos JS & Secretos -->
+            <div id="tab-jsfiles" class="tab-content hidden space-y-4">
+                <div id="jsfiles-container" class="space-y-4">
+                    <div class="py-8 text-center text-gray-500 font-mono text-sm">
+                        Seleccione un objetivo y ejecute "Analizar JS" para extraer endpoints y credenciales expuestas.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/recon.js"></script>
+{% endblock %}

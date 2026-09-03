@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis de Seguridad con IA - Aegis_X{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- ==================================================== -->
+    <!-- ENCABEZADO Y FILTROS DE AUDITORÍA IA                 -->
+    <!-- ==================================================== -->
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <div class="flex items-center space-x-3 mb-1">
+                    <span class="text-3xl">🤖</span>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Análisis de Vulnerabilidades con Inteligencia Artificial</h2>
+                </div>
+                <p class="text-xs text-gray-400">
+                    Evaluación heurística de vectores de ataque OWASP, correlación de parámetros y generación de pruebas de concepto defensivas.
+                </p>
+            </div>
+
+            <!-- Selector de Filtro por Objetivo y Severidad -->
+            <div class="flex flex-wrap items-center gap-3">
+                <select id="analysis-target-filter" class="bg-gray-900 border border-gray-700 text-gray-200 text-xs rounded-lg px-3.5 py-2.5 font-mono focus:ring-1 focus:ring-purple-500">
+                    <option value="">🎯 Todos los Objetivos</option>
+                </select>
+
+                <select id="analysis-risk-filter" class="bg-gray-900 border border-gray-700 text-gray-200 text-xs rounded-lg px-3.5 py-2.5 font-mono focus:ring-1 focus:ring-purple-500">
+                    <option value="">🛡️ Todos los Niveles de Riesgo</option>
+                    <option value="CRITICO">🔥 Crítico</option>
+                    <option value="ALTO">🔴 Alto</option>
+                    <option value="MEDIO">🟡 Medio</option>
+                    <option value="BAJO">🟢 Bajo</option>
+                    <option value="INFO">🔵 Informativo</option>
+                </select>
+
+                <button id="btn-refresh-analysis" class="px-3.5 py-2.5 bg-gray-700 hover:bg-gray-600 text-xs text-white rounded-lg font-mono flex items-center space-x-1.5 transition">
+                    <span>🔄 Refrescar</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- PANEL DE ESTADÍSTICAS DEL MOTOR DE IA            -->
+        <!-- ================================================ -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 pt-6 border-t border-gray-700/70">
+            <!-- Total Análisis -->
+            <div class="bg-gray-900/80 border border-gray-700/70 p-4 rounded-lg">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Total Análisis</p>
+                <p id="stat-total-analyses" class="text-2xl font-bold text-white mt-1 font-mono">0</p>
+            </div>
+
+            <!-- Tasa de Caché -->
+            <div class="bg-gray-900/80 border border-gray-700/70 p-4 rounded-lg">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Tasa de Caché</p>
+                <p id="stat-cache-hit-rate" class="text-2xl font-bold text-emerald-400 mt-1 font-mono">0%</p>
+            </div>
+
+            <!-- Tokens Utilizados -->
+            <div class="bg-gray-900/80 border border-gray-700/70 p-4 rounded-lg">
+                <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Tokens Utilizados</p>
+                <p id="stat-tokens-used" class="text-2xl font-bold text-cyan-400 mt-1 font-mono">0</p>
+            </div>
+
+            <!-- Hallazgos Altos / Críticos -->
+            <div class="bg-gray-900/80 border border-red-900/50 p-4 rounded-lg">
+                <p class="text-[11px] font-medium text-red-400 uppercase tracking-wider">Riesgo Alto / Crítico</p>
+                <p id="stat-high-risk" class="text-2xl font-bold text-red-400 mt-1 font-mono">0</p>
+            </div>
+
+            <!-- Hallazgos Medios -->
+            <div class="bg-gray-900/80 border border-amber-900/50 p-4 rounded-lg">
+                <p class="text-[11px] font-medium text-amber-400 uppercase tracking-wider">Riesgo Medio</p>
+                <p id="stat-medium-risk" class="text-2xl font-bold text-amber-400 mt-1 font-mono">0</p>
+            </div>
+
+            <!-- Hallazgos Bajos / Info -->
+            <div class="bg-gray-900/80 border border-blue-900/50 p-4 rounded-lg">
+                <p class="text-[11px] font-medium text-blue-400 uppercase tracking-wider">Bajo / Info</p>
+                <p id="stat-low-risk" class="text-2xl font-bold text-blue-400 mt-1 font-mono">0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- LISTADO DE TARJETAS DE ANÁLISIS EXPANDIBLES          -->
+    <!-- ==================================================== -->
+    <div id="analysis-cards-container" class="space-y-4">
+        <!-- Estado inicial vacío o de carga -->
+        <div id="analysis-empty-state" class="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center text-gray-500">
+            <div class="flex flex-col items-center justify-center space-y-3">
+                <span class="text-4xl">🤖</span>
+                <p class="text-base font-medium text-gray-300">No hay análisis de seguridad disponibles.</p>
+                <p class="text-xs text-gray-400 max-w-md">
+                    Capture tráfico en la pestaña <a href="/traffic" class="text-cyan-400 hover:underline">Tráfico en Vivo</a> y haga clic en "Analizar con IA" para auditar solicitudes sospechosas.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/analysis.js"></script>
+{% endblock %}

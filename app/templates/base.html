@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plataforma de Auditoría y Reconocimiento{% endblock %} - Aegis_X</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0b0f19',
+                            800: '#111827',
+                            700: '#1f2937',
+                            600: '#374151'
+                        },
+                        cyber: {
+                            green: '#10b981',
+                            cyan: '#06b6d4',
+                            red: '#ef4444',
+                            yellow: '#f59e0b',
+                            purple: '#8b5cf6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/static/css/app.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col md:flex-row antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- ========================================== -->
+    <!-- BARRA LATERAL DE NAVEGACIÓN (SIDEBAR)       -->
+    <!-- ========================================== -->
+    <aside class="w-full md:w-64 bg-gray-800 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col flex-shrink-0">
+        <!-- Encabezado / Logotipo -->
+        <div class="h-16 flex items-center px-6 border-b border-gray-700 bg-gray-850">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">⚡</span>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wider text-cyan-400">AEGIS<span class="text-emerald-400">_X</span></h1>
+                    <p class="text-xs text-gray-400 font-mono">Kali Linux Audit Suite</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú de Navegación -->
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <a href="/" class="nav-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700/60 transition duration-150 ease-in-out {% if request.url.path == '/' %}bg-gray-700/80 text-cyan-400 font-semibold border-l-4 border-cyan-400{% endif %}">
+                <span class="text-xl">🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="/recon" class="nav-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700/60 transition duration-150 ease-in-out {% if '/recon' in request.url.path %}bg-gray-700/80 text-emerald-400 font-semibold border-l-4 border-emerald-400{% endif %}">
+                <span class="text-xl">🔍</span>
+                <span>Reconocimiento</span>
+            </a>
+
+            <a href="/traffic" class="nav-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700/60 transition duration-150 ease-in-out {% if '/traffic' in request.url.path %}bg-gray-700/80 text-cyan-400 font-semibold border-l-4 border-cyan-400{% endif %}">
+                <span class="text-xl">📡</span>
+                <span>Tráfico en Vivo</span>
+            </a>
+
+            <a href="/analysis" class="nav-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700/60 transition duration-150 ease-in-out {% if '/analysis' in request.url.path %}bg-gray-700/80 text-purple-400 font-semibold border-l-4 border-purple-400{% endif %}">
+                <span class="text-xl">🤖</span>
+                <span>Análisis IA</span>
+            </a>
+        </nav>
+
+        <!-- Indicador de Estado del Sistema -->
+        <div class="p-4 border-t border-gray-700 bg-gray-850/50">
+            <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+                <span>Conexión WebSocket:</span>
+                <div class="flex items-center space-x-1.5" id="ws-status-container">
+                    <span id="ws-status-indicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                    <span id="ws-status-text" class="font-mono">Conectando...</span>
+                </div>
+            </div>
+            <div class="text-[11px] text-gray-500 text-center font-mono">
+                v1.0.0 | Aegis_X Kali Engine
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- ÁREA DE CONTENIDO PRINCIPAL                -->
+    <!-- ========================================== -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Barra superior móvil / información general -->
+        <header class="h-16 bg-gray-800 border-b border-gray-700 px-6 flex items-center justify-between shadow-md">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-400">Entorno:</span>
+                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono">PRODUCCIÓN / LOCAL</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="quick-target-info" class="text-xs text-gray-400">
+                    <!-- Información contextual del objetivo activo -->
+                </div>
+                <div class="text-xs font-mono text-gray-400" id="current-time">--:--:--</div>
+            </div>
+        </header>
+
+        <!-- Contenido Inyectado por Plantillas Hijas -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-900">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Pie de página general -->
+        <footer class="bg-gray-850 border-t border-gray-800 px-6 py-2.5 text-xs text-gray-400 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <div>
+                <span>Plataforma de Reconocimiento y Auditoría de Seguridad &copy; 2026</span>
+            </div>
+            <div class="flex items-center space-x-4 font-mono text-[11px]">
+                <span class="flex items-center space-x-1">
+                    <span class="inline-block w-2 h-2 rounded-full bg-cyan-400"></span>
+                    <span>API: OK</span>
+                </span>
+                <span class="flex items-center space-x-1">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>IA: ACTIVA</span>
+                </span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SCRIPTS BASE & GESTIÓN DE WEBSOCKET GLOBAL -->
+    <!-- ========================================== -->
+    <script>
+        /**
+         * Inicialización y gestión global de la conexión WebSocket.
+         * Mantiene un estado persistente y maneja reconexión automática.
+         */
+        (function() {
+            // Reloj en tiempo real en la barra superior
+            function updateClock() {
+                const timeEl = document.getElementById('current-time');
+                if (timeEl) {
+                    const now = new Date();
+                    timeEl.textContent = now.toLocaleTimeString('es-ES', { hour12: false });
+                }
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // Configuración del WebSocket
+            const statusIndicator = document.getElementById('ws-status-indicator');
+            const statusText = document.getElementById('ws-status-text');
+
+            let ws = null;
+            let reconnectInterval = 3000;
+            let shouldReconnect = true;
+
+            function connectWebSocket() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.location.host || 'localhost:8000';
+                const wsUrl = `${protocol}//${host}/ws`;
+
+                console.log(`[WS] Iniciando conexión con ${wsUrl}...`);
+                
+                try {
+                    ws = new WebSocket(wsUrl);
+                    window.ws = ws;
+
+                    ws.onopen = function() {
+                        console.log('[WS] Conexión establecida exitosamente.');
+                        if (statusIndicator && statusText) {
+                            statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50';
+                            statusText.textContent = 'En línea';
+                            statusText.className = 'font-mono text-emerald-400';
+                        }
+                        // Disparar evento personalizado en el documento
+                        window.dispatchEvent(new CustomEvent('ws:connected', { detail: { ws } }));
+                    };
+
+                    ws.onmessage = function(event) {
+                        try {
+                            const data = JSON.parse(event.data);
+                            // Notificar a todos los módulos que escuchan mensajes de WebSocket
+                            window.dispatchEvent(new CustomEvent('ws:message', { detail: data }));
+                        } catch (err) {
+                            console.warn('[WS] Mensaje no procesable como JSON:', event.data);
+                        }
+                    };
+
+                    ws.onerror = function(err) {
+                        console.error('[WS] Error en la conexión WebSocket:', err);
+                        if (statusIndicator && statusText) {
+                            statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse';
+                            statusText.textContent = 'Error';
+                            statusText.className = 'font-mono text-red-400';
+                        }
+                    };
+
+                    ws.onclose = function(e) {
+                        console.warn('[WS] Conexión cerrada. Código:', e.code, 'Motivo:', e.reason);
+                        if (statusIndicator && statusText) {
+                            statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse';
+                            statusText.textContent = 'Reconectando...';
+                            statusText.className = 'font-mono text-yellow-400';
+                        }
+                        window.dispatchEvent(new CustomEvent('ws:disconnected'));
+
+                        if (shouldReconnect) {
+                            setTimeout(connectWebSocket, reconnectInterval);
+                        }
+                    };
+                } catch (e) {
+                    console.error('[WS] Fallo al instanciar WebSocket:', e);
+                    setTimeout(connectWebSocket, reconnectInterval);
+                }
+            }
+
+            // Iniciar conexión al cargar el DOM
+            document.addEventListener('DOMContentLoaded', connectWebSocket);
+        })();
+    </script>
+
+    <!-- Inyección de scripts adicionales específicos por vista -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

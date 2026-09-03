@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Tráfico en Vivo - Aegis_X{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- ==================================================== -->
+    <!-- ENCABEZADO Y CONTROLES DE TRÁFICO HTTP EN VIVO       -->
+    <!-- ==================================================== -->
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <div class="flex items-center space-x-3 mb-1">
+                    <span class="text-2xl">📡</span>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Captura de Tráfico en Tiempo Real</h2>
+                </div>
+                <p class="text-xs text-gray-400">
+                    Intercepción pasiva y visualización de flujos HTTP/HTTPS para auditoría de endpoints y parámetros.
+                </p>
+            </div>
+
+            <!-- Contadores de Estadísticas de Tráfico -->
+            <div class="flex items-center space-x-4">
+                <div class="px-4 py-2 bg-gray-900/90 border border-gray-700/80 rounded-lg text-center font-mono">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-400">Total Peticiones</p>
+                    <p id="counter-total-traffic" class="text-lg font-bold text-cyan-400">0</p>
+                </div>
+                <div class="px-4 py-2 bg-gray-900/90 border border-gray-700/80 rounded-lg text-center font-mono">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-400">Filtradas</p>
+                    <p id="counter-filtered-traffic" class="text-lg font-bold text-yellow-400">0</p>
+                </div>
+                <div class="px-4 py-2 bg-gray-900/90 border border-gray-700/80 rounded-lg text-center font-mono">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-400">Analizadas por IA</p>
+                    <p id="counter-analyzed-traffic" class="text-lg font-bold text-purple-400">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Filtros y Controles -->
+        <div class="mt-6 pt-4 border-t border-gray-700/70 flex flex-wrap items-center justify-between gap-4">
+            <!-- Filtros -->
+            <div class="flex flex-wrap items-center gap-3 flex-1 min-w-[300px]">
+                <!-- Filtro por Objetivo -->
+                <select id="traffic-target-filter" class="bg-gray-900 border border-gray-700 text-gray-200 text-xs rounded-lg px-3 py-2 font-mono focus:ring-1 focus:ring-cyan-500">
+                    <option value="">🎯 Todos los Objetivos</option>
+                </select>
+
+                <!-- Filtro por Método HTTP -->
+                <select id="traffic-method-filter" class="bg-gray-900 border border-gray-700 text-gray-200 text-xs rounded-lg px-3 py-2 font-mono focus:ring-1 focus:ring-cyan-500">
+                    <option value="">⚙️ Todos los Métodos</option>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="OPTIONS">OPTIONS</option>
+                </select>
+
+                <!-- Campo de Búsqueda rápida por URL -->
+                <input 
+                    type="text" 
+                    id="traffic-search-input" 
+                    placeholder="Filtrar por URL / Parámetro..." 
+                    class="bg-gray-900 border border-gray-700 text-gray-200 text-xs rounded-lg px-3 py-2 font-mono flex-1 min-w-[180px] focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                />
+            </div>
+
+            <!-- Acciones / Toggles -->
+            <div class="flex items-center space-x-3">
+                <!-- Toggle Auto-scroll -->
+                <label class="inline-flex items-center space-x-2 text-xs font-mono text-gray-300 cursor-pointer select-none bg-gray-900/60 px-3 py-2 rounded-lg border border-gray-700">
+                    <input type="checkbox" id="toggle-autoscroll" checked class="rounded bg-gray-800 border-gray-600 text-cyan-500 focus:ring-0">
+                    <span>Auto-scroll</span>
+                </label>
+
+                <!-- Botón Pausar / Reanudar Flujo -->
+                <button id="btn-toggle-stream" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-xs text-white rounded-lg font-mono flex items-center space-x-1.5 transition">
+                    <span id="stream-icon">⏸️</span>
+                    <span id="stream-text">Pausar</span>
+                </button>
+
+                <!-- Botón Limpiar Tabla -->
+                <button id="btn-clear-traffic" class="px-3 py-2 bg-gray-700/60 hover:bg-red-900/60 text-xs text-red-300 border border-gray-700 hover:border-red-700 rounded-lg font-mono flex items-center space-x-1 transition">
+                    <span>🗑️ Limpiar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TABLA PRINCIPAL DE TRÁFICO HTTP EN VIVO              -->
+    <!-- ==================================================== -->
+    <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto max-h-[650px] overflow-y-auto" id="traffic-table-container">
+            <table class="w-full text-left text-xs text-gray-300">
+                <thead class="bg-gray-900/95 sticky top-0 uppercase text-gray-400 font-mono tracking-wider border-b border-gray-700 z-10">
+                    <tr>
+                        <th class="px-4 py-3 w-12 text-center">#</th>
+                        <th class="px-4 py-3 w-24">Método</th>
+                        <th class="px-4 py-3">URL / Endpoint</th>
+                        <th class="px-4 py-3 w-20 text-center">Status</th>
+                        <th class="px-4 py-3 w-32">Tipo Contenido</th>
+                        <th class="px-4 py-3 w-28 font-mono">Hora</th>
+                        <th class="px-4 py-3 w-36 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="traffic-table-body" class="divide-y divide-gray-700/50 font-mono">
+                    <!-- Fila placeholder cuando no hay tráfico aún -->
+                    <tr id="empty-traffic-row">
+                        <td colspan="7" class="px-6 py-16 text-center text-gray-500">
+                            <div class="flex flex-col items-center justify-center space-y-3">
+                                <span class="text-3xl animate-pulse">📡</span>
+                                <p class="text-sm font-sans text-gray-400">Escuchando tráfico HTTP entrante...</p>
+                                <p class="text-xs text-gray-500">Las solicitudes interceptadas o simuladas aparecerán aquí en tiempo real.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/traffic.js"></script>
+{% endblock %}
